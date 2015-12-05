@@ -1,0 +1,131 @@
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+public class DBConnector {
+	private Connection con;
+	private Statement st;
+	private ResultSet rs;
+	private int rs2;
+	private String idZwiazku;
+	private int direction;
+
+	public DBConnector() {
+		try {
+			// Class.forName("com.mysql.jdbc.Driver");
+
+			con = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/TIBI", "root", "abcd1234");
+
+			st = con.createStatement();
+
+		} catch (Exception ex) {
+			System.out.println("Error: " + ex);
+		}
+	}
+
+	public void getData() {
+		try {
+			String querry = "Select * from TIBI.markers";
+			rs = st.executeQuery(querry);
+			System.out.println("Records from database: ");
+			while (rs.next()) {
+				String name = rs.getString("name");
+				String descr = rs.getString("descr");
+
+				System.out.println("Name: " + name + " " + "descr: " + descr);
+			}
+
+		} catch (Exception ex) {
+			System.out.println(ex);
+		}
+	}
+
+	public int allowOpen(String givenCode, char mode) {
+		try {
+			System.out.println("Message from LPC:" + givenCode + " mode: " + mode);
+
+			if (mode == ')') { // Wjazd
+				/*
+				 * String querry = "SELECT * FROM `Rejestracje`.`Kod_IR`;"; rs =
+				 * st.executeQuery(querry);
+				 * 
+				 * //if(rs.getFetchSize() == 0)return 2; String code; while
+				 * (rs.next()) { code = rs.getString("kod"); if
+				 * (code.equals(givenCode)){ break; } }
+				 */
+
+				/*
+				 * String querry = "SELECT status FROM Rejestracje.Osoba"+
+				 * "left join Rejestracje.`Osoba-Samochod`"+
+				 * "on (idZwiazku=id_Osoba)" + "left join Rejestracje.Kod_IR"+
+				 * "on(id_Kod_IR=idKod)"+ "where kod = 6561584;";// + givenCode
+				 * + ";";
+				 */
+
+				String querry = "SELECT status, idosoba_samochod FROM Rejestracje.Osoba left join Rejestracje.`Osoba-Samochod` on (idOsoba=id_Osoba) left join Rejestracje.Kod_IR on(id_Kod_IR=idKod) where kod = "
+						+ givenCode + ";";
+
+				rs = st.executeQuery(querry);
+
+				if (!rs.next()) {
+					System.out.println("pusto");
+					return 2;
+				}
+
+				System.out.println("przed while ");
+				String status;
+				rs.previous();
+				while (rs.next()) {
+					status = rs.getString("status");
+					if (status.equals("1") || status.equals("2")) {
+						System.out.println(this.getidZwiazku());
+
+						setidZwiazku(rs.getString("idosoba_samochod"));
+						System.out.println(this.getidZwiazku());
+						return 0;
+					} else if (status.equals("3"))
+						return 4;
+				}
+
+			} else if (mode == '+') { // Wyjazd
+
+			}
+			return 1;
+
+		} catch (Exception ex) {
+			System.out.println(ex);
+		}
+		return 1;
+	}
+
+	public void sendLog() {
+		if (direction == 1) {
+			String query = "INSERT INTO `Rejestracje`.`Wjechanie`(`czasWjazdu`,`czasWyjazdu`,"+
+					"`id_Zwiazku`,`Na_parkingu`,`zakaz_wyjazdu`)VALUES(now(),now(),3,3);";
+
+			try {
+				rs2 = st.executeUpdate(query);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("Log sent ");
+		} else if (direction == 2) {
+
+		} else {
+
+		}
+	}
+
+
+	public String getidZwiazku() {
+		return idZwiazku;
+	}
+
+	public void setidZwiazku(String idZwiazku) {
+		this.idZwiazku = idZwiazku;
+	}
+
+}
