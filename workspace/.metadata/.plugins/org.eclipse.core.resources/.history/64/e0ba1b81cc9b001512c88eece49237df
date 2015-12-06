@@ -94,10 +94,10 @@ public class DBConnector {
 
 			} else if (mode == '+') { // Wyjazd
 				// Czy na ten kod ktoś wjechał
-				String querry = "SELECT `Wjechanie`.`id_Zwiazku`, `zakaz_wyjazdu` " + "FROM `Rejestracje`.`Wjechanie`"
-						+ "inner join `Rejestracje`.`Osoba-Samochod`" + "on(idosoba_samochod = id_Zwiazku)"
-						+ "inner join `Rejestracje`.`Kod_IR`" + "on(idKod=id_Kod_IR)" + "where kod = " + givenCode
-						+ " and Na_parkingu = 1;";
+				String querry = "SELECT `Wjechanie`.`id_Zwiazku`, `Wjechanie`.`zakaz_wyjazdu`"
+						+ "FROM `Rejestracje`.`Wjechanie`" + "inner join `Rejestracje`.`Osoba-Samochod`"
+						+ "on(idosoba_samochod = id_Zwiazku)" + "inner join `Rejestracje`.`Kod_IR`"
+						+ "on(idKod=id_Kod_IR)" + "where kod = " + givenCode + " and Na_parkingu = 1;";
 
 				rs = st.executeQuery(querry);
 
@@ -132,53 +132,44 @@ public class DBConnector {
 
 		} catch (Exception ex) {
 			System.out.println(ex);
-			// ex.printStackTrace();
+			ex.printStackTrace();
 		}
 		direction = 0;
 		return 1;
 	}
 
 	public void sendLog() {
-		try {
-			if (direction == 1) { // wjazd
-				String query = "INSERT INTO `Rejestracje`.`Wjechanie`(`czasWjazdu`,"
-						+ "`id_Zwiazku`,`Na_parkingu`)VALUES(now()," + idZwiazku + ",1);";
+		if (direction == 1) { // wjazd
+			String query = "INSERT INTO `Rejestracje`.`Wjechanie`(`czasWjazdu`,`czasWyjazdu`,"
+					+ "`id_Zwiazku`,`Na_parkingu`)VALUES(now(),0," + idZwiazku + ",1);";
+			try {
 				rs2 = st.executeUpdate(query);
-
-				idZwiazku = "0";
-				System.out.println("Log sent - zanotowanie wjazdu");
-			} else if (direction == 2) { // wyjazd
-				String query = "SELECT * FROM Rejestracje.Wjechanie " + "WHERE id_Zwiazku = " + idZwiazku
-						+ " AND Na_parkingu = 1;";
-
-				rs = st.executeQuery(query);
-
-				while (rs.next()) {
-					query = "" + " UPDATE `Rejestracje`.`Wjechanie` SET czasWyjazdu = now(), Na_parkingu = 2 "
-							+ " where `id_Zwiazku` = " + idZwiazku + " and Na_parkingu = 1;";
-
-					rs2 = st.executeUpdate(query);
-					System.out.println("Log sent - zanotowanie wYjazdu ");
-					return;
-				}
-
-				query = "INSERT INTO `Rejestracje`.`Wjechanie`" + "(`czasWyjazdu`,`id_Zwiazku`,`Na_parkingu`)"
-						+ "VALUES(NOW(),"+idZwiazku+",2);";
-
-				rs2 = st.executeUpdate(query);
-
-				idZwiazku = "0";
-				System.out.println("Log sent - zanotowanie wYjazdu samochodu który nie miał odnotowaniego wjazdu");
-			} else { // nie wiadomo
-				String query = "INSERT INTO `Rejestracje`.`Wjechanie`(`czasWjazdu`,`czasWyjazdu`,"
-						+ "`id_Zwiazku`,`Na_parkingu`)VALUES(now(),now(),0,0);";
-				rs2 = st.executeUpdate(query);
-
-				idZwiazku = "0";
-				System.out.println("Log sent - don't know who and which way");
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
+			idZwiazku = "0";
+			System.out.println("Log sent - zanotowanie wjazdu");
+		} else if (direction == 2) { // wyjazd
+			String query = "" + " UPDATE `Rejestracje`.`Wjechanie` SET czasWyjazdu = now(), Na_parkingu = 2 "
+					+ " where `id_Zwiazku` = " + idZwiazku + " and Na_parkingu = 1;";
+
+			try {
+				rs2 = st.executeUpdate(query);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			idZwiazku = "0";
+			System.out.println("Log sent - zanotowanie wYjazdu ");
+		} else { // nie wiadomo
+			String query = "INSERT INTO `Rejestracje`.`Wjechanie`(`czasWjazdu`,`czasWyjazdu`,"
+					+ "`id_Zwiazku`,`Na_parkingu`)VALUES(now(),now(),0,0);";
+			try {
+				rs2 = st.executeUpdate(query);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			idZwiazku = "0";
+			System.out.println("Log sent - don't know who and which way");
 		}
 	}
 

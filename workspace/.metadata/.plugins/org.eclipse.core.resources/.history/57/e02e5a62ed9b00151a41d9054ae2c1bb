@@ -151,7 +151,7 @@ public class DBConnector {
 				String query = "SELECT * FROM Rejestracje.Wjechanie " + "WHERE id_Zwiazku = " + idZwiazku
 						+ " AND Na_parkingu = 1;";
 
-				rs = st.executeQuery(query);
+				rs2 = st.executeUpdate(query);
 
 				while (rs.next()) {
 					query = "" + " UPDATE `Rejestracje`.`Wjechanie` SET czasWyjazdu = now(), Na_parkingu = 2 "

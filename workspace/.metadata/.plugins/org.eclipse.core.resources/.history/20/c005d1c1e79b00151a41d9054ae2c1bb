@@ -148,27 +148,26 @@ public class DBConnector {
 				idZwiazku = "0";
 				System.out.println("Log sent - zanotowanie wjazdu");
 			} else if (direction == 2) { // wyjazd
-				String query = "SELECT * FROM Rejestracje.Wjechanie " + "WHERE id_Zwiazku = " + idZwiazku
+				String query = "SELECT * FROM Rejestracje.Wjechanie" + "WHERE id_Zwiazku = " + idZwiazku
 						+ " AND Na_parkingu = 1;";
 
-				rs = st.executeQuery(query);
+				rs2 = st.executeUpdate(query);
 
 				while (rs.next()) {
 					query = "" + " UPDATE `Rejestracje`.`Wjechanie` SET czasWyjazdu = now(), Na_parkingu = 2 "
 							+ " where `id_Zwiazku` = " + idZwiazku + " and Na_parkingu = 1;";
 
 					rs2 = st.executeUpdate(query);
-					System.out.println("Log sent - zanotowanie wYjazdu ");
 					return;
 				}
-
-				query = "INSERT INTO `Rejestracje`.`Wjechanie`" + "(`czasWyjazdu`,`id_Zwiazku`,`Na_parkingu`)"
-						+ "VALUES(NOW(),"+idZwiazku+",2);";
+				
+				query = "" + " UPDATE `Rejestracje`.`Wjechanie` SET czasWyjazdu = now(), Na_parkingu = 2 "
+						+ " where `id_Zwiazku` = " + idZwiazku + " and Na_parkingu = 1;";
 
 				rs2 = st.executeUpdate(query);
-
+				
 				idZwiazku = "0";
-				System.out.println("Log sent - zanotowanie wYjazdu samochodu który nie miał odnotowaniego wjazdu");
+				System.out.println("Log sent - zanotowanie wYjazdu ");
 			} else { // nie wiadomo
 				String query = "INSERT INTO `Rejestracje`.`Wjechanie`(`czasWjazdu`,`czasWyjazdu`,"
 						+ "`id_Zwiazku`,`Na_parkingu`)VALUES(now(),now(),0,0);";
