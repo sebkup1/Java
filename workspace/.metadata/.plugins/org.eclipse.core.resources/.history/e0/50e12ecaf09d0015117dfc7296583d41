@@ -93,8 +93,7 @@ public class DBConnector {
 						+ "on (id_Zwiazku=idOsoba_samochod) " + "left join Rejestracje.Osoba" + " on (id_Osoba=idOsoba) "
 						+ "where idOsoba = " + "(SELECT idOsoba FROM Rejestracje.Osoba "
 						+ "left join Rejestracje.`Osoba_samochod` " + "on (idOsoba=id_Osoba) "
-						+ "left join Rejestracje.Kod_IR " + "on(id_Kod_IR=idKod) where kod = " + givenCode 
-						+ " and Na_parkingu = 1);";
+						+ "left join Rejestracje.Kod_IR " + "on(id_Kod_IR=idKod) where kod = " + givenCode + ");";
 
 				rs = st.executeQuery(querry);
 
@@ -126,7 +125,7 @@ public class DBConnector {
 						return 0; // Zezwolenie na wyjazd
 					}
 				}
-						
+
 				querry = "SELECT zakaz_wyjazdu, `idOsoba_samochod`  FROM `Rejestracje`.`Osoba_samochod`"
 						+ "inner join `Rejestracje`.`Kod_IR` " + "on(idKod=id_Kod_IR) " + "where kod = " + givenCode
 						+ ";";

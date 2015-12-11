@@ -213,3 +213,4 @@ Caused by: java.io.EOFException: SSL peer shut down incorrectly
 	... 99 common frames omitted
 2015-12-04 22:03:04,712 [main] INFO  c.g.t.t.d.PublishedGradleVersions - Gradle version information cache file is out-of-date. Remote download required.
 2015-12-06 05:56:48,803 [main] INFO  c.g.t.t.d.PublishedGradleVersions - Gradle version information cache file is out-of-date. Remote download required.
+2015-12-08 22:15:31,608 [main] INFO  c.g.t.t.d.PublishedGradleVersions - Gradle version information cache file is out-of-date. Remote download required.

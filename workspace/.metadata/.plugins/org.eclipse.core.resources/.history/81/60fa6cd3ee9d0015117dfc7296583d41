@@ -50,7 +50,7 @@ public class DBConnector {
 
 			if (mode == ')') { // Wjazd
 				// Czy ma upranienia do wjazdu
-				String querry = "SELECT status, idOsoba_samochod FROM Rejestracje.Osoba left join Rejestracje.`Osoba_samochod` on (idOsoba=id_Osoba) left join Rejestracje.Kod_IR on(id_Kod_IR=idKod) where kod = "
+				String querry = "SELECT status, idosoba_samochod FROM Rejestracje.Osoba left join Rejestracje.`Osoba-Samochod` on (idOsoba=id_Osoba) left join Rejestracje.Kod_IR on(id_Kod_IR=idKod) where kod = "
 						+ givenCode + ";";
 
 				rs = st.executeQuery(querry);
@@ -67,7 +67,7 @@ public class DBConnector {
 					if (status.equals("1") || status.equals("2")) {
 						System.out.println(this.getidZwiazku());
 
-						setidZwiazku(rs.getString("idOsoba_samochod"));
+						setidZwiazku(rs.getString("idosoba_samochod"));
 						System.out.println(this.getidZwiazku());
 						// return 0;
 
@@ -78,7 +78,7 @@ public class DBConnector {
 
 				// Sprawdzenie czy kod nie jest w użyciu
 				querry = "SELECT `Wjechanie`.`idwjechania`" + "FROM `Rejestracje`.`Wjechanie`"
-						+ "inner join `Rejestracje`.`Osoba_samochod`" + "on(idOsoba_samochod = id_Zwiazku)"
+						+ "inner join `Rejestracje`.`Osoba-Samochod`" + "on(idosoba_samochod = id_Zwiazku)"
 						+ "inner join `Rejestracje`.`Kod_IR`" + "on(idKod=id_Kod_IR)" + "where kod = " + givenCode
 						+ " and Na_parkingu = 1;";
 
@@ -89,12 +89,11 @@ public class DBConnector {
 					return 3; // Kod w użyciu
 				}
 				// Sprawdzenie czy inny samochód użytkownika już nie wjechał
-				querry = "select idwjechania from Rejestracje.Wjechanie " + "left join Rejestracje.`Osoba_samochod` "
-						+ "on (id_Zwiazku=idOsoba_samochod) " + "left join Rejestracje.Osoba" + " on (id_Osoba=idOsoba) "
+				querry = "select idwjechania from Rejestracje.Wjechanie " + "left join Rejestracje.`Osoba-Samochod` "
+						+ "on (id_Zwiazku=idosoba_samochod) " + "left join Rejestracje.Osoba" + " on (id_Osoba=idOsoba) "
 						+ "where idOsoba = " + "(SELECT idOsoba FROM Rejestracje.Osoba "
-						+ "left join Rejestracje.`Osoba_samochod` " + "on (idOsoba=id_Osoba) "
-						+ "left join Rejestracje.Kod_IR " + "on(id_Kod_IR=idKod) where kod = " + givenCode 
-						+ " and Na_parkingu = 1);";
+						+ "left join Rejestracje.`Osoba-Samochod` " + "on (idOsoba=id_Osoba) "
+						+ "left join Rejestracje.Kod_IR " + "on(id_Kod_IR=idKod) where kod = " + givenCode + ");";
 
 				rs = st.executeQuery(querry);
 
@@ -110,7 +109,7 @@ public class DBConnector {
 			} else if (mode == '+') { // Wyjazd
 				// Czy na ten kod ktoś wjechał
 				String querry = "SELECT `Wjechanie`.`id_Zwiazku`, `zakaz_wyjazdu` " + "FROM `Rejestracje`.`Wjechanie`"
-						+ "inner join `Rejestracje`.`Osoba_samochod`" + "on(idOsoba_samochod = id_Zwiazku)"
+						+ "inner join `Rejestracje`.`Osoba-Samochod`" + "on(idosoba_samochod = id_Zwiazku)"
 						+ "inner join `Rejestracje`.`Kod_IR`" + "on(idKod=id_Kod_IR)" + "where kod = " + givenCode
 						+ " and Na_parkingu = 1;";
 
@@ -126,8 +125,8 @@ public class DBConnector {
 						return 0; // Zezwolenie na wyjazd
 					}
 				}
-						
-				querry = "SELECT zakaz_wyjazdu, `idOsoba_samochod`  FROM `Rejestracje`.`Osoba_samochod`"
+
+				querry = "SELECT zakaz_wyjazdu, `idosoba_samochod`  FROM `Rejestracje`.`Osoba-Samochod`"
 						+ "inner join `Rejestracje`.`Kod_IR` " + "on(idKod=id_Kod_IR) " + "where kod = " + givenCode
 						+ ";";
 				rs = st.executeQuery(querry);
@@ -136,7 +135,7 @@ public class DBConnector {
 					if (rs.getInt("zakaz_wyjazdu") == 1)
 						return 6;
 					else {
-						setidZwiazku(rs.getString("idOsoba_samochod"));
+						setidZwiazku(rs.getString("idosoba_samochod"));
 						direction = 2;
 						return 0; // Zezwolenie na wyjazd
 					}
