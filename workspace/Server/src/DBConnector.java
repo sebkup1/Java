@@ -43,6 +43,7 @@ public class DBConnector {
 	}
 
 	public int allowOpen(String givenCode, char mode) {
+		int tempReturn = 0;
 		try {
 			System.out.println("Message from LPC:" + givenCode + " mode: " + mode);
 
@@ -72,9 +73,13 @@ public class DBConnector {
 						// return 0;
 
 					} else if (status.equals("3")) {
+						//tempReturn = 4;
 						return 4;
 					}
 				}
+				
+				// Sprawdzenie czy ma zezwolenie na inny abonament
+				// if tempReturn !=4
 
 				// Sprawdzenie czy kod nie jest w użyciu
 				querry = "SELECT `Wjechanie`.`idwjechania`" + "FROM `Rejestracje`.`Wjechanie`"
@@ -89,10 +94,11 @@ public class DBConnector {
 					return 3; // Kod w użyciu
 				}
 				// Sprawdzenie czy inny samochód użytkownika już nie wjechał
+				// if inny właściciel abonamentu to inaczej
 				querry = "select idwjechania from Rejestracje.Wjechanie " + "left join Rejestracje.`Osoba_samochod` "
 						+ "on (id_Zwiazku=idOsoba_samochod) " + "left join Rejestracje.Osoba" + " on (id_Osoba=idOsoba) "
 						+ "where idOsoba = " + "(SELECT idOsoba FROM Rejestracje.Osoba "
-						+ "left join Rejestracje.`Osoba_samochod` " + "on (idOsoba=id_Osoba) "
+						+ "left join Rejestracje.`Osoba_samochod` " + "on (idOsoba=wlasciciel_abonamentu) "
 						+ "left join Rejestracje.Kod_IR " + "on(id_Kod_IR=idKod) where kod = " + givenCode 
 						+ " and Na_parkingu = 1);";
 
