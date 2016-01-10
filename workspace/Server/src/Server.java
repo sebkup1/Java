@@ -122,6 +122,8 @@ public class Server extends JFrame {
 							this.sendMessage("aaaaaaa" + generator.nextInt(1000));
 						else if (results == 6)	// Zakaz wyjazdu
 							this.sendMessage("ttttttt" + generator.nextInt(1000));
+						else if (results == 7)	// Ta osoba lub auto już wjechały
+							this.sendMessage("ooooooo" + generator.nextInt(1000));
 						else					// Błąd wewnętrzny
 							this.sendMessage("ppppppp" + generator.nextInt(1000));
 					}

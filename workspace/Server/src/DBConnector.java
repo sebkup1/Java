@@ -44,6 +44,8 @@ public class DBConnector {
 
 	public int allowOpen(String givenCode, char mode) {
 		int tempReturn = 0;
+		String tempIdOsoba;
+		String tempIdSamochod;
 		try {
 			System.out.println("Message from LPC:" + givenCode + " mode: " + mode);
 
@@ -51,7 +53,9 @@ public class DBConnector {
 
 			if (mode == ')') { // Wjazd
 				// Czy ma upranienia do wjazdu
-				String querry = "SELECT status, idOsoba_samochod FROM Rejestracje.Osoba left join Rejestracje.`Osoba_samochod` on (idOsoba=id_Osoba) left join Rejestracje.Kod_IR on(id_Kod_IR=idKod) where kod = "
+				String querry = "SELECT status, idOsoba_samochod, id_Osoba, id_Samochod FROM Rejestracje.Osoba "
+						+ "left join Rejestracje.`Osoba_samochod` on (idOsoba=wlasciciel_abonamentu) "
+						+ "left join Rejestracje.Kod_IR on(id_Kod_IR=idKod) where kod = "
 						+ givenCode + ";";
 
 				rs = st.executeQuery(querry);
@@ -59,6 +63,11 @@ public class DBConnector {
 				if (!rs.next()) {
 					System.out.println("pusto");
 					return 2;
+				}
+				else
+				{
+					tempIdOsoba=rs.getString("id_Osoba");
+					tempIdSamochod=rs.getString("id_Samochod");
 				}
 
 				String status;
@@ -78,8 +87,6 @@ public class DBConnector {
 					}
 				}
 				
-				// Sprawdzenie czy ma zezwolenie na inny abonament
-				// if tempReturn !=4
 
 				// Sprawdzenie czy kod nie jest w użyciu
 				querry = "SELECT `Wjechanie`.`idwjechania`" + "FROM `Rejestracje`.`Wjechanie`"
@@ -93,12 +100,29 @@ public class DBConnector {
 
 					return 3; // Kod w użyciu
 				}
+				
+				// Czy ta osoba lub samochód już nie wjechały
+				querry = "SELECT `Wjechanie`.`idwjechania` FROM `Rejestracje`.`Wjechanie` "
+						+"inner join `Rejestracje`.`Osoba_samochod` on(idOsoba_samochod = id_Zwiazku) "
+						+"where id_Osoba = "+tempIdOsoba+" or id_Samochod = "+tempIdSamochod
+						+" and Na_parkingu = 1;";
+				
+				rs = st.executeQuery(querry);
+
+				while (rs.next()) {
+
+					return 7; // osoba(lub auto) już wjechała
+				}
+				
 				// Sprawdzenie czy inny samochód użytkownika już nie wjechał
 				// if inny właściciel abonamentu to inaczej
-				querry = "select idwjechania from Rejestracje.Wjechanie " + "left join Rejestracje.`Osoba_samochod` "
-						+ "on (id_Zwiazku=idOsoba_samochod) " + "left join Rejestracje.Osoba" + " on (id_Osoba=idOsoba) "
+				querry = "select idwjechania, id_Kod_IR from Rejestracje.Wjechanie " 
+						+ "left join Rejestracje.`Osoba_samochod` "
+						+ "on (id_Zwiazku=idOsoba_samochod) " 
+						+ "left join Rejestracje.Osoba" + " on (wlasciciel_abonamentu=idOsoba) "
 						+ "where idOsoba = " + "(SELECT idOsoba FROM Rejestracje.Osoba "
-						+ "left join Rejestracje.`Osoba_samochod` " + "on (idOsoba=wlasciciel_abonamentu) "
+						+ "left join Rejestracje.`Osoba_samochod` "
+						+ "on (wlasciciel_abonamentu=idOsoba) " 
 						+ "left join Rejestracje.Kod_IR " + "on(id_Kod_IR=idKod) where kod = " + givenCode 
 						+ " and Na_parkingu = 1);";
 
@@ -132,7 +156,7 @@ public class DBConnector {
 						return 0; // Zezwolenie na wyjazd
 					}
 				}
-						
+				// Czy osoba która podała kod może wyjechać tym samochodem
 				querry = "SELECT zakaz_wyjazdu, `idOsoba_samochod`  FROM `Rejestracje`.`Osoba_samochod`"
 						+ "inner join `Rejestracje`.`Kod_IR` " + "on(idKod=id_Kod_IR) " + "where kod = " + givenCode
 						+ ";";
@@ -169,12 +193,14 @@ public class DBConnector {
 				idZwiazku = "0";
 				System.out.println("Log sent - zanotowanie wjazdu");
 			} else if (direction == 2) { // wyjazd
+				// Wyszukanie w bazie logu wjechania dla tego kodu
 				String query = "SELECT * FROM Rejestracje.Wjechanie " + "WHERE id_Zwiazku = " + idZwiazku
 						+ " AND Na_parkingu = 1;";
 
 				rs = st.executeQuery(query);
 
 				while (rs.next()) {
+					// Aktualizacja tego logu poprzez dodanie czasu wyjazdu
 					query = "" + " UPDATE `Rejestracje`.`Wjechanie` SET czasWyjazdu = now(), Na_parkingu = 2 "
 							+ " where `id_Zwiazku` = " + idZwiazku + " and Na_parkingu = 1;";
 
