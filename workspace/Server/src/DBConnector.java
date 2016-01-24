@@ -74,7 +74,7 @@ public class DBConnector {
 				rs.previous();
 				while (rs.next()) {
 					status = rs.getString("status");
-					if (status.equals("1") || status.equals("2")) {
+					if (status.equals("1") || status.equals("2") || status.equals("4")) {
 						System.out.println(this.getidZwiazku());
 
 						setidZwiazku(rs.getString("idOsoba_samochod"));
@@ -104,8 +104,8 @@ public class DBConnector {
 				// Czy ta osoba lub samochód już nie wjechały
 				querry = "SELECT `Wjechanie`.`idwjechania` FROM `Rejestracje`.`Wjechanie` "
 						+"inner join `Rejestracje`.`Osoba_samochod` on(idOsoba_samochod = id_Zwiazku) "
-						+"where id_Osoba = "+tempIdOsoba+" or id_Samochod = "+tempIdSamochod
-						+" and Na_parkingu = 1;";
+						+"where (id_Osoba = "+tempIdOsoba+" or id_Samochod = "+tempIdSamochod
+						+" ) and Na_parkingu = 1;";
 				
 				rs = st.executeQuery(querry);
 
