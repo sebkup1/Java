@@ -39,13 +39,12 @@ public class Server extends JFrame {
 
 		// MySql Connection
 		con = new DBConnector();
-		// con.sendLog("wszczety");
 	}
 
 	// set up and run the server
 	public void startRunning() {
 		try {
-			server = new ServerSocket(50002, 100);
+			server = new ServerSocket(50000, 100);
 			// backlog - ile osób mo¿e siê pod³¹czyæ
 			while (true) {
 				try {
@@ -56,7 +55,7 @@ public class Server extends JFrame {
 					showMessage("\n Server ended the connection! ");
 					System.out.println("Rzucony wyjatek");
 				} finally {
-					closeCrap();
+					showMessage("\n Preparing to new connection... \n");
 				}
 			}
 
@@ -67,7 +66,7 @@ public class Server extends JFrame {
 
 	// wait for connection, then display connection information
 	private void waitForConnection() throws IOException {
-		showMessage("Waiting for some to connect...\n");
+		showMessage(" Waiting for LPC to connect...\n");
 		connection = server.accept();
 		showMessage(" Now connected to " + connection.getInetAddress().getHostName());
 
@@ -79,7 +78,7 @@ public class Server extends JFrame {
 		output.flush();
 		input = new ObjectInputStream(connection.getInputStream());
 
-		String message = "init_data";
+		String message = "ini_data_";
 		sendMessage(message);
 
 		showMessage("\n Streams are now setup");
@@ -88,7 +87,7 @@ public class Server extends JFrame {
 
 	// during the chat converstaion
 	private void whileChatting() throws IOException {
-		String message = " You are now connected!";
+		String message = new String();// = " You are now connected!";
 		// sendMessage(message);
 		ableToType(true);
 		Random generator = new Random();
@@ -108,36 +107,42 @@ public class Server extends JFrame {
 				} else {
 					results = con.allowOpen(message.substring(0, 7), message.charAt(7));
 
-					if (results == 0) 			// Można wjeżdżać
+					if (results == 0) // Można wjeżdżać
 					{
 						this.sendMessage("bbbbbbbb" + generator.nextInt(1000));
 					} else {
-						if (results == 2)		// Zły kod
+						if (results == 2) // Zły kod
 							this.sendMessage("rrrrrrrr" + generator.nextInt(1000));
-						else if (results == 3)	// Kod w użyciu
+						else if (results == 3) // Kod w użyciu
 							this.sendMessage("ggggggg" + generator.nextInt(1000));
-						else if (results == 4)	// Koniec abonamentu
+						else if (results == 4) // Koniec abonamentu
 							this.sendMessage("ccccccc" + generator.nextInt(1000));
-						else if (results == 5)	// Inny samochód
+						else if (results == 5) // Inny samochód
 							this.sendMessage("aaaaaaa" + generator.nextInt(1000));
-						else if (results == 6)	// Zakaz wyjazdu
+						else if (results == 6) // Zakaz wyjazdu
 							this.sendMessage("ttttttt" + generator.nextInt(1000));
-						else if (results == 7)	// Ta osoba lub auto już wjechały
+						else if (results == 7) // Ta osoba lub auto już wjechały
 							this.sendMessage("ooooooo" + generator.nextInt(1000));
-						else					// Błąd wewnętrzny
+						else // Błąd wewnętrzny
 							this.sendMessage("ppppppp" + generator.nextInt(1000));
 					}
 				}
 			} catch (ClassNotFoundException classNotFoundException) {
-				showMessage("\n idk wtf what user send!");
+				showMessage("\n idk what user send!");
+				closeConnection();
+
+			} catch (IOException ex) {
+				showMessage("\n IOException thrown!");
+				closeConnection();
+				return;
 			}
 		} while (!message.equals("END")); // gdy klient co takiego napisze to
 											// roz³¹czam po³¹czenie
 	}
 
-	// close strams and sockets after done chatting
-	private void closeCrap() {
-		showMessage("\n Closing connections...\n");
+	// close streams and sockets after done chatting
+	private void closeConnection() {
+		showMessage("\n Closing connections...");
 
 		ableToType(false);
 		try {
@@ -157,7 +162,7 @@ public class Server extends JFrame {
 			showMessage("\n SERVER - " + message);
 		} catch (IOException ioException) {
 			chatWindow.append("\n ERROR: Can't send message");
-
+			//closeConnection();
 		}
 	}
 

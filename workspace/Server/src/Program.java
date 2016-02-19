@@ -4,9 +4,9 @@ public class Program {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		Server sally = new Server();
-		sally.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		sally.startRunning();
+		Server server = new Server();
+		server.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		server.startRunning();
 	}
 
 }
